@@ -1,40 +1,44 @@
-#!/usr/bin/python3
-""" Python caching systems """
+#!/usr/bin/env python3
+""" BaseCaching module
+"""
 from base_caching import BaseCaching
-from collections import OrderedDict
 
 
 class MRUCache(BaseCaching):
-    """ MRU caching system
     """
+    FIFOCache defines a FIFO caching system
+    """
+
     def __init__(self):
-        """ Initialize class instance. """
+        """
+        Initialize the class with the parent's init method
+        """
         super().__init__()
-        self.cache_data = OrderedDict()
-        self.mru = ""
+        self.usage = []
 
     def put(self, key, item):
-        """ Add an item in the cache
         """
-        if key and item:
-            if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-                if key in self.cache_data:
-                    self.cache_data.update({key: item})
-                    self.mru = key
-                else:
-                    # discard the most recently used item
-                    discarded = self.mru
-                    del self.cache_data[discarded]
-                    print("DISCARD: {}".format(discarded))
-                    self.cache_data[key] = item
-                    self.mru = key
-            else:
-                self.cache_data[key] = item
-                self.mru = key
+        Cache a key-value pair
+        """
+        if key is None or item is None:
+            pass
+        else:
+            length = len(self.cache_data)
+            if length >= BaseCaching.MAX_ITEMS and key not in self.cache_data:
+                print("DISCARD: {}".format(self.usage[-1]))
+                del self.cache_data[self.usage[-1]]
+                del self.usage[-1]
+            if key in self.usage:
+                del self.usage[self.usage.index(key)]
+            self.usage.append(key)
+            self.cache_data[key] = item
 
     def get(self, key):
-        """ Get an item by key
         """
-        if key in self.cache_data:
-            self.mru = key
+        Return the value linked to a given key, or None
+        """
+        if key is not None and key in self.cache_data.keys():
+            del self.usage[self.usage.index(key)]
+            self.usage.append(key)
             return self.cache_data[key]
+        return None

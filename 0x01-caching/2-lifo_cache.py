@@ -1,24 +1,43 @@
-#!/usr/bin/python3
-""" Python caching systems """
+#!/usr/bin/env python3
+""" BaseCaching module
+"""
 from base_caching import BaseCaching
 
 
 class LIFOCache(BaseCaching):
-    """ LIFO caching system """
+    """
+    FIFOCache defines a FIFO caching system
+    """
+
     def __init__(self):
-        """ Initialize class instance. """
+        """
+        Initialize the class with the parent's init method
+        """
         super().__init__()
+        self.order = []
 
     def put(self, key, item):
-        """ Add an item in the cache """
-        if key and item:
+        """
+        Cache a key-value pair
+        """
+        if key is None or item is None:
+            pass
+        else:
+            length = len(self.cache_data)
+            if length >= BaseCaching.MAX_ITEMS and key not in self.cache_data:
+                print("DISCARD: {}".format(self.order[-1]))
+                del self.cache_data[self.order[-1]]
+                del self.order[-1]
+
+            if key in self.order:
+                del self.order[self.order.index(key)]
+            self.order.append(key)
             self.cache_data[key] = item
-        if len(self.cache_data) > BaseCaching.MAX_ITEMS:
-            self.cache_data.pop(self.last_item)
-            print('DISCARD:', self.last_item)
-        if key:
-            self.last_item = key
 
     def get(self, key):
-        """ Get an item by key """
-        return self.cache_data.get(key)
+        """
+        Return the value linked to a given key, or None
+        """
+        if key is not None and key in self.cache_data.keys():
+            return self.cache_data[key]
+        return None
